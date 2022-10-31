@@ -2,6 +2,7 @@ package com.nttdata.bootcamp.msloan.model;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -19,5 +20,11 @@ public class Credit {
     private String currency;
     private Boolean status;
     private Double balance;
+
+    //PENDIENTE VALIDAR SI ESTA EN GRABAR
+    //private Double debtBalance;
+    private LocalDateTime disbursementDate;
+    private LocalDateTime paymentDate;
+    private LocalDateTime expirationDate;
 
 }
