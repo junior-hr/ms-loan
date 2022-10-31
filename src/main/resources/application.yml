@@ -1,0 +1,38 @@
+server:
+  port: 8081
+  error:
+    include-message: always
+local:
+  property:
+    host:
+      ms-bank-account: localhost
+      ms-client: localhost
+      ms-credits: localhost
+      ms-movement: localhost
+spring:
+  application:
+    name: service-loan
+  data:
+    mongodb:
+      database: LoanDB
+      auto-index-creation: true
+      host: localhost
+      port: 27017
+  config:
+    import: optional:configserver:http://ms-config-server:8888
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:9093/eureka
+resilience4j:
+  circuitbreaker:
+    instances:
+      loan:
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 4
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 8
+        waitDurationInOpenState: 50s
+        permittedNumberOfCallsInHalfOpenState: 3
+message:
+  demo: leido desde local

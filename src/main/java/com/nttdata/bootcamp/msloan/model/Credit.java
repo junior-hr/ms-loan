@@ -1,0 +1,26 @@
+package com.nttdata.bootcamp.msloan.model;
+
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class Credit {
+
+    @Id
+    private String idCredit;
+    private Client client;
+    private Integer creditNumber;
+    private String creditType;
+    private Double creditLineAmount;
+    private String currency;
+    private Boolean status;
+    private Double balance;
+
+}
