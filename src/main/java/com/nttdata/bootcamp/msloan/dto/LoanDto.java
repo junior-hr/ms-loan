@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -22,6 +23,7 @@ import java.util.List;
 @NoArgsConstructor
 @Slf4j
 @Builder
+@ToString
 public class LoanDto {
 
     private String idLoan;

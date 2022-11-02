@@ -2,6 +2,9 @@ package com.nttdata.bootcamp.msloan.infrastructure;
 
 import com.nttdata.bootcamp.msloan.config.WebClientConfig;
 import com.nttdata.bootcamp.msloan.model.Credit;
+import com.nttdata.bootcamp.msloan.util.Constants;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +24,7 @@ public class CreditRepository {
     @Autowired
     ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory;
 
+	@CircuitBreaker(name = Constants.CREDIT_CB, fallbackMethod = "getDefaultCreditsByDocumentNumber")
     public Flux<Credit> findCreditsByDocumentNumber(String documentNumber) {
 
         log.info("Inicio----findCreditsByDocumentNumber-------: ");
@@ -31,10 +35,15 @@ public class CreditRepository {
                         .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(new Exception("Error 400")))
                         .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(new Exception("Error 500")))
                         .bodyToFlux(Credit.class)
-                        .transform(it -> reactiveCircuitBreakerFactory.create("parameter-service").run(it, throwable -> Flux.just(new Credit())))
+                        // .transform(it -> reactiveCircuitBreakerFactory.create("parameter-service").run(it, throwable -> Flux.just(new Credit())))
                         .collectList()
                 )
                 .flatMapMany(iterable -> Flux.fromIterable(iterable));
         return alerts;
+    }
+    
+    public Flux<Credit> getDefaultCreditsByDocumentNumber(String documentNumber, Exception e) {
+        log.info("Inicio----getDefaultCreditsByDocumentNumber-------: ");
+	    return Flux.empty();
     }
 }

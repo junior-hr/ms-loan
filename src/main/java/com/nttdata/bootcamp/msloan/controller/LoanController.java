@@ -25,12 +25,12 @@ public class LoanController {
 
     @GetMapping
     public Mono<ResponseEntity<Flux<Loan>>> listLoans() {
-        return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(service.findAll()));
+        return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(service.findAll()));
     }
 
     @GetMapping("/{idLoan}")
     public Mono<ResponseEntity<Loan>> viewLoansDetails(@PathVariable("idLoan") String idLoan) {
-        return service.findById(idLoan).map(c -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(c))
+        return service.findById(idLoan).map(c -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(c))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
@@ -43,7 +43,7 @@ public class LoanController {
                 request.put("mensaje", "Prestamo guardado con exito");
                 request.put("timestamp", new Date());
                 return ResponseEntity.created(URI.create("/api/loans/".concat(c.getIdLoan())))
-                        .contentType(MediaType.APPLICATION_JSON_UTF8).body(request);
+                        .contentType(MediaType.APPLICATION_JSON).body(request);
             });
         });
     }
@@ -52,27 +52,27 @@ public class LoanController {
     public Mono<ResponseEntity<Loan>> editLoan(@Valid @RequestBody LoanDto loanDto, @PathVariable("idLoan") String idLoan) {
         return service.update(loanDto, idLoan)
                 .map(c -> ResponseEntity.created(URI.create("/api/loans/".concat(idLoan)))
-                        .contentType(MediaType.APPLICATION_JSON_UTF8).body(c));
+                        .contentType(MediaType.APPLICATION_JSON).body(c));
     }
 
     @DeleteMapping("/{idLoan}")
     public Mono<ResponseEntity<Void>> deleteLoan(@PathVariable("idLoan") String idLoan) {
         return service.delete(idLoan)
                 .map(c -> ResponseEntity.created(URI.create("/api/loans/".concat(idLoan)))
-                        .contentType(MediaType.APPLICATION_JSON_UTF8).body(c));
+                        .contentType(MediaType.APPLICATION_JSON).body(c));
     }
 
-    @GetMapping("movements/documentNumber/{documentNumber}")
+    @GetMapping("/movements/documentNumber/{documentNumber}")
     public Mono<ResponseEntity<LoanDto>> getMovementsOfLoanByDocumentNumber(@PathVariable("documentNumber") String documentNumber) {
         return service.findMovementsByDocumentNumber(documentNumber)
-                .map(c -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(c))
+                .map(c -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(c))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
     //Buscar productos de prestamos por nro de documento del cliente
     @GetMapping("/loansDetails/{documentNumber}")
     public Mono<ResponseEntity<Flux<Loan>>> getViewLoanDetailsByDocumentNumber(@PathVariable("documentNumber") String documentNumber) {
-        return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8)
+        return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
                         .body(service.findLoanByDocumentNumber(documentNumber)))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }

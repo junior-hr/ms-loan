@@ -52,6 +52,7 @@ public class LoanServiceImpl implements LoanService {
                 .flatMap(client -> {
                     return validateNumberClientLoan(client, loanDto, "save")
                             .flatMap(o -> {
+                                log.info("sg validateNumberClientLoan-------: " + o.toString());
                                 return loanDto.validateFields()
                                         .flatMap(at -> {
                                             if (at.equals(true)) {
@@ -108,7 +109,7 @@ public class LoanServiceImpl implements LoanService {
     }
 
 
-    public Mono<Object> validateNumberClientLoan(Client client, LoanDto loanDto, String method) {
+    public Mono<Boolean> validateNumberClientLoan(Client client, LoanDto loanDto, String method) {
         log.info("Inicio validateNumberClientLoan-------: ");
         Boolean isOk = false;
         if (client.getClientType().equals("Personal")) {
@@ -122,9 +123,13 @@ public class LoanServiceImpl implements LoanService {
                     } else {
                         log.info("3 Personal cantidad : ", cant);
                         log.info("Cliente Personal no tiene prestamo");
-                        if (validateLoanDebt(client.getDocumentNumber(), "Personal").equals(true))
-                            return validateCreditCardDebt(client.getDocumentNumber(), "Personal");
-                        else return Mono.just(false);
+                        return validateLoanDebt(client.getDocumentNumber(), "Personal").flatMap(vl ->{
+                            if (vl.equals(true)){
+                                return validateCreditCardDebt(client.getDocumentNumber(), "Personal");
+                            }else{
+                                return Mono.just(false);
+                            }
+                        });
                     }
                 });
             } else {
@@ -135,9 +140,16 @@ public class LoanServiceImpl implements LoanService {
                 Flux<Loan> list = loanRepository.findByLoanClient(client.getDocumentNumber(), loanDto.getLoanType());
                 return list.count().flatMap(cant -> {
                     log.info("1 Business cantidad : ", cant);
-                    if (validateLoanDebt(client.getDocumentNumber(), "Business").equals(true))
-                        return validateCreditCardDebt(client.getDocumentNumber(), "Business");
-                    else return Mono.just(false);
+
+                    return validateLoanDebt(client.getDocumentNumber(), "Business").flatMap( vl ->{
+                        if (vl.equals(true)){
+                            return validateCreditCardDebt(client.getDocumentNumber(), "Business");
+                        }else{
+                            return Mono.just(false);
+                        }
+                    });
+
+
                 });
             } else {
                 return Mono.just(true);
@@ -154,6 +166,8 @@ public class LoanServiceImpl implements LoanService {
         return loanRepository.findByDocumentNumber(documentNumber)
                 .flatMap(d -> {
                     log.info("Inicio----findMovementsByCreditNumber-------: ");
+                    log.info("Inicio----findMovementsByCreditNumber-------: " + d.toString());
+                    log.info("Inicio----findMovementsByCreditNumber-------: " + d.getLoanNumber().toString() );
                     return movementRepository.findMovementsByLoanNumber(d.getLoanNumber().toString())
                             .collectList()
                             .flatMap(m -> {
@@ -180,13 +194,19 @@ public class LoanServiceImpl implements LoanService {
         return creditRepository.findCreditsByDocumentNumber(documentNumber)
                 .collectList()
                 .flatMap(c -> {
+                    log.info("sg----findCreditsByDocumentNumber-------: ");
+                    log.info("sg----findCreditsByDocumentNumber-------: " + c.toString());
                     if (creditType.equals("Personal")) {
                         if (c.size() == Constants.ZERO || c == null) {
+                            log.info("Inicio----validateCreditCardDebt-------if1: ");
                             return Mono.just(true);
                         } else {
+                            log.info("Inicio----validateCreditCardDebt-------else1: ");
                             if (datetime.isBefore(c.get(0).getExpirationDate())) {
+                                log.info("Inicio----validateCreditCardDebt-------if2: ");
                                 return Mono.just(true);//No se vence
                             } else {
+                                log.info("Inicio----validateCreditCardDebt-------else2: ");
                                 return Mono.just(false);//Ya se vencio
                             }
                         }
@@ -200,8 +220,9 @@ public class LoanServiceImpl implements LoanService {
                                 return Mono.just(false);//Ya se vencio
                             }
                         }
+                    }else{
+                        return Mono.just(false);
                     }
-                    return Mono.just(true);
                 });
     }
 
