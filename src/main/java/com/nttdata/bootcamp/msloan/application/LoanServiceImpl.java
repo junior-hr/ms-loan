@@ -8,6 +8,7 @@ import com.nttdata.bootcamp.msloan.infrastructure.LoanRepository;
 import com.nttdata.bootcamp.msloan.infrastructure.MovementRepository;
 import com.nttdata.bootcamp.msloan.model.Client;
 import com.nttdata.bootcamp.msloan.model.Loan;
+import com.nttdata.bootcamp.msloan.producer.LoanProducer;
 import com.nttdata.bootcamp.msloan.util.Constants;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -32,6 +33,9 @@ public class LoanServiceImpl implements LoanService {
 
     @Autowired
     private CreditRepository creditRepository;
+
+    @Autowired
+    private LoanProducer loanProducer;
 
     @Override
     public Flux<Loan> findAll() {
@@ -59,7 +63,11 @@ public class LoanServiceImpl implements LoanService {
                                                 return loanDto.mapperToLoan(client)
                                                         .flatMap(ba -> {
                                                             log.info("sg MapperToLoan-------: ");
-                                                            return loanRepository.save(ba);
+                                                            return loanRepository.save(ba)
+                                                                    .flatMap(k -> {
+                                                                        loanProducer.sendMessage(k);
+                                                                        return Mono.just(k);
+                                                                    });
                                                         });
                                             } else {
                                                 return Mono.error(new ResourceNotFoundException("Tipo Prestamo", "LoanType", loanDto.getLoanType()));
@@ -123,10 +131,10 @@ public class LoanServiceImpl implements LoanService {
                     } else {
                         log.info("3 Personal cantidad : ", cant);
                         log.info("Cliente Personal no tiene prestamo");
-                        return validateLoanDebt(client.getDocumentNumber(), "Personal").flatMap(vl ->{
-                            if (vl.equals(true)){
+                        return validateLoanDebt(client.getDocumentNumber(), "Personal").flatMap(vl -> {
+                            if (vl.equals(true)) {
                                 return validateCreditCardDebt(client.getDocumentNumber(), "Personal");
-                            }else{
+                            } else {
                                 return Mono.just(false);
                             }
                         });
@@ -140,11 +148,10 @@ public class LoanServiceImpl implements LoanService {
                 Flux<Loan> list = loanRepository.findByLoanClient(client.getDocumentNumber(), loanDto.getLoanType());
                 return list.count().flatMap(cant -> {
                     log.info("1 Business cantidad : ", cant);
-
-                    return validateLoanDebt(client.getDocumentNumber(), "Business").flatMap( vl ->{
-                        if (vl.equals(true)){
+                    return validateLoanDebt(client.getDocumentNumber(), "Business").flatMap(vl -> {
+                        if (vl.equals(true)) {
                             return validateCreditCardDebt(client.getDocumentNumber(), "Business");
-                        }else{
+                        } else {
                             return Mono.just(false);
                         }
                     });
@@ -167,7 +174,7 @@ public class LoanServiceImpl implements LoanService {
                 .flatMap(d -> {
                     log.info("Inicio----findMovementsByCreditNumber-------: ");
                     log.info("Inicio----findMovementsByCreditNumber-------: " + d.toString());
-                    log.info("Inicio----findMovementsByCreditNumber-------: " + d.getLoanNumber().toString() );
+                    log.info("Inicio----findMovementsByCreditNumber-------: " + d.getLoanNumber().toString());
                     return movementRepository.findMovementsByLoanNumber(d.getLoanNumber().toString())
                             .collectList()
                             .flatMap(m -> {
@@ -211,7 +218,7 @@ public class LoanServiceImpl implements LoanService {
                             }
                         }
                     } else if (creditType.equals("Business")) {
-                        if (c == null) {
+                        if (c == null || c.size() == 0) {
                             return Mono.just(true);
                         } else {
                             if (datetime.isBefore(c.get(0).getExpirationDate())) {
@@ -220,7 +227,7 @@ public class LoanServiceImpl implements LoanService {
                                 return Mono.just(false);//Ya se vencio
                             }
                         }
-                    }else{
+                    } else {
                         return Mono.just(false);
                     }
                 });
@@ -246,7 +253,7 @@ public class LoanServiceImpl implements LoanService {
                             }
                         }
                     } else if (loanType.equals("Business")) {
-                        if (l == null) {
+                        if (l == null || l.size() == 0) {
                             return Mono.just(true);
                         } else {
                             if (datetime.isBefore(l.get(0).getExpirationDate())) {

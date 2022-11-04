@@ -1,9 +1,19 @@
 package com.nttdata.bootcamp.msloan.model;
 
-import lombok.*;
 import org.springframework.data.annotation.Id;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+import lombok.Setter;
+import lombok.ToString;
+
+/**
+ * Class Credit.
+ * Loan microservice class Credit.
+ */
 @Getter
 @Setter
 @AllArgsConstructor

@@ -5,6 +5,10 @@ import com.nttdata.bootcamp.msloan.model.Loan;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * Class LoanService.
+ * Loan microservice class LoanService.
+ */
 public interface LoanService {
 
     public Flux<Loan> findAll();

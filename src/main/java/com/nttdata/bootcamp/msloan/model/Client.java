@@ -1,12 +1,16 @@
 package com.nttdata.bootcamp.msloan.model;
 
+import org.springframework.data.annotation.Id;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Builder;
-import org.springframework.data.annotation.Id;
 
+/**
+ * Class Client.
+ * Loan microservice class Client.
+ */
 @Getter
 @Setter
 @AllArgsConstructor

@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8092
   error:
     include-message: always
 local:
@@ -18,6 +18,16 @@ spring:
       port: 27017
   config:
     import: optional:configserver:http://ms-config-server:8888
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    topic:
+      loan:
+        name: loan-topic
+
 eureka:
   client:
     service-url:

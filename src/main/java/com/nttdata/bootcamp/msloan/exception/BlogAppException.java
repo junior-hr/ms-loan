@@ -1,10 +1,14 @@
 package com.nttdata.bootcamp.msloan.exception;
 
+import org.springframework.http.HttpStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.http.HttpStatus;
 
+/**
+ * Class BlogAppException.
+ * Loan microservice class BlogAppException.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

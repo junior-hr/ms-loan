@@ -3,7 +3,6 @@ package com.nttdata.bootcamp.msloan.infrastructure;
 import com.nttdata.bootcamp.msloan.config.WebClientConfig;
 import com.nttdata.bootcamp.msloan.model.Movement;
 import com.nttdata.bootcamp.msloan.util.Constants;
-
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +40,7 @@ public class MovementRepository {
 
     public Flux<Movement> getDefaultMovementsByLoanNumber(String creditNumber, Exception e) {
         log.info("Inicio----getDefaultMovementsByLoanNumber-------: ");
-	    return Flux.empty();
+        return Flux.empty();
     }
+
 }
