@@ -27,7 +27,7 @@ public class MovementRepository {
     public Flux<Movement> findMovementsByLoanNumber(String loanNumber) {
         log.info("Inicio----findMovementsByLoanNumber-------: ");
         WebClientConfig webconfig = new WebClientConfig();
-        return webconfig.setUriData("http://" + propertyHostMsMovement + ":8083")
+        return webconfig.setUriData("http://" + propertyHostMsMovement + ":8092")
                 .flatMap(d -> webconfig.getWebclient().get().uri("/api/movements/client/loanNumber/" + loanNumber).retrieve()
                         .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(new Exception("Error 400")))
                         .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(new Exception("Error 500")))
